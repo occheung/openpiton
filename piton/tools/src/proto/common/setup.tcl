@@ -133,6 +133,7 @@ if  {[info exists ::env(PITON_ARIANE)]} {
   cd $::env(DV_ROOT)/design/chipset/rv64_platform/bootrom/baremetal
   # Note: dd dumps info to stderr that we do not want to interpret
   # otherwise this command fails...
+  puts "INFO: making bare metal bootloader"
   exec make clean 2> /dev/null
   exec make all 2> /dev/null
   cd $::env(DV_ROOT)/design/chipset/rv64_platform/bootrom/linux
