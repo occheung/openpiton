@@ -2889,8 +2889,8 @@ sub parse_args
   push (@{$opt{sim_run_args}}, "+oram") if ($opt{oram}) ;
 
   if ($opt{vcs_build} or $opt{ncv_build} or $opt{riv_build}) {
-      push(@{$opt{config_rtl}}, "OST1_PLI_SLAM_RANDOM") ;
-      push(@{$opt{config_rtl}}, "OST1_PLI_MRA_VAL") ;
+      push(@{$opt{fusesoc_params}}, "--OST1_PLI_SLAM_RANDOM") ;
+      push(@{$opt{fusesoc_params}}, "--OST1_PLI_MRA_VAL") ;
   }
 
 }
