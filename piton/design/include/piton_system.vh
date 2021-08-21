@@ -154,6 +154,9 @@
     `define PITON_AXI_EXTERNAL_DRAM
     `define PITON_FPGA_SYNTH
     `define PITON_FPGA_MC_DDR3
+    `define PITONSYS_IOCTRL
+    `undef PITONSYS_UART
+    `undef PITONSYS_SPI
 `endif
 
 // If PITON_FPGA_SD_BOOT is set we should always include SPI
