@@ -401,15 +401,18 @@ module system(
     input  [3:0]                                sw,
 `elsif XUPP3R_BOARD
     // no switches :(
-`elsif PITON_FPGA_LIY
 `else
+`ifndef PITON_FPGA_LITEX_CHIPSET
     input  [7:0]                                sw,
+`endif // endif PITON_FPGA_LITEX_CHIPSET
 `endif
 
 `ifdef XUPP3R_BOARD
     output [3:0]                                leds
 `else 
+`ifndef PITON_FPGA_LITEX_CHIPSET
     output [7:0]                                leds
+`endif // endif PITON_FPGA_LITEX_CHIPSET
 `endif
 );
 
@@ -1228,10 +1231,12 @@ chipset chipset(
     .btnc(btnc),
 `endif
 
+`ifndef PITON_FPGA_LITEX_CHIPSET
 `ifndef XUPP3R_BOARD
     .sw(sw),
 `endif
     .leds(leds)
+`endif
 
 `ifdef PITON_ARIANE
     ,
@@ -1252,7 +1257,9 @@ chipset chipset(
     .timer_irq_o                    ( timer_irq                  ), // Timer interrupts
     .ipi_o                          ( ipi                        ), // software interrupt (a.k.a inter-process-interrupt)
     // PLIC
+    `ifndef PITON_FPGA_LITEX_CHIPSET
     .irq_o                          ( irq                        )  // level sensitive IR lines, mip & sip (async)
+    `endif // endif PITON_FPGA_LITEX_CHIPSET
 `endif
 
 );
