@@ -129,7 +129,9 @@ module system(
     input                                       chipset_clk,
 `ifndef PITONSYS_NO_MC
 `ifdef PITON_FPGA_MC_DDR3
+`ifndef PITON_AXI_EXTERNAL_DRAM
     input                                       mc_clk,
+`endif // endif PITON_AXI_EXTERNAL_DRAM
 `endif // endif PITON_FPGA_MC_DDR3
 `endif // endif PITONSYS_NO_MC
 `ifdef PITONSYS_SPI
