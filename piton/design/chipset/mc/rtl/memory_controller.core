@@ -8,6 +8,7 @@ filesets:
             - mc_top.v
             - memory_zeroer.v
             - noc_mig_bridge.v
+            - f1_mc_top.v
         file_type: verilogSource-2001
 
 targets:
@@ -16,7 +17,7 @@ targets:
     pickle:
         default_tool: icarus
         filesets: [rtl]
-        toplevel: [mc_top]
+        toplevel: [f1_mc_top]
         tools:
             icarus:
                 iverilog_options: [-g 2001 -E]

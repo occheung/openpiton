@@ -12,7 +12,7 @@ filesets:
         depend:
             - openpiton::piton_chipset_include
             - openpiton::fpga_bridge
-            - "tool_vivado? (openpiton::memory_controller)"
+            - openpiton::memory_controller
             - openpiton::noc_axilite_bridge
             - openpiton::noc_axi4_bridge
             - "tool_vivado? (openpiton::noc_sd_bridge)"
