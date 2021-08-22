@@ -535,7 +535,7 @@ def main():
 
     if do_pickle:
         #print_info("Pickling: %s" % args.core_name)
-        cmd = 'fusesoc --config {} run --build --target=pickle --tool=slang {} --extra_options="--preprocess -I {} -I {} {}" > generated.v'.format(fusesoc_config_arg, args.fusesoc_core, ariane_dir, cross_module_dir, " ".join(["-D %s " % define for define in args.config_rtl]))
+        cmd = 'fusesoc --config {} run --build --target=pickle --tool=slang {} --extra_options="--preprocess -D VERILATOR -I {} -I {} {}" > generated.v'.format(fusesoc_config_arg, args.fusesoc_core, ariane_dir, cross_module_dir, " ".join(["-D %s " % define for define in args.config_rtl]))
         print_info(cmd)
         ret_val = os.system(cmd)
         if ret_val != 0:

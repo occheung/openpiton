@@ -110,7 +110,7 @@ module system(
 `endif // endif PITON_PASSTHRU_CLKS_GEN
 `endif // endif PITON_SYS_INC_PASSTHRU
 
-`ifndef F1_BOARD
+`ifndef PITON_AXI_EXTERNAL_DRAM
 `ifdef PITON_CHIPSET_CLKS_GEN
 `ifdef PITON_CHIPSET_DIFF_CLK
     input                                       chipset_clk_osc_p,
@@ -142,7 +142,7 @@ module system(
     input                                       chipset_passthru_clk_n,
 `endif // endif PITONSYS_INC_PASSTHRU
 `endif // endif PITON_CHIPSET_CLKS_GEN
-`else //F1_BOARD
+`else //PITON_AXI_EXTERNAL_DRAM
     input sys_clk,
 `endif
 
@@ -186,13 +186,13 @@ module system(
 `ifndef VCU118_BOARD
 `ifndef NEXYSVIDEO_BOARD
 `ifndef XUPP3R_BOARD
-`ifndef F1_BOARD
+`ifndef PITON_AXI_EXTERNAL_DRAM
   input                                         tck_i,
   input                                         tms_i,
   input                                         trst_ni,
   input                                         td_i,
   output                                        td_o,
-`endif//F1_BOARD
+`endif//PITON_AXI_EXTERNAL_DRAM
 `endif//XUPP3R_BOARD
 `endif //NEXYSVIDEO_BOARD
 `endif //VCU118_BOARD
@@ -414,6 +414,11 @@ module system(
     output [7:0]                                leds
 `endif // endif PITON_FPGA_LITEX_CHIPSET
 `endif
+
+`ifdef PITON_FPGA_LITEX_CHIPSET
+    input [31:0]                                       ext_irq,
+    input [31:0]                                      ext_irq_trigger
+`endif // endif PITON_FPGA_LITEX_CHIPSET
 );
 
 ///////////////////////
@@ -953,7 +958,7 @@ passthru passthru(
 chipset chipset(
     // Only need oscillator clock if
     // chipset is generating its own clocks
-`ifdef F1_BOARD
+`ifdef PITON_AXI_EXTERNAL_DRAM
     .sys_clk(sys_clk),
 `else 
 
@@ -982,7 +987,7 @@ chipset chipset(
     .sd_sys_clk(sd_sys_clk),
 `endif // endif PITONSYS_SPI
 `endif // endif PITON_CHIPSET_CLKS_GEN
-`endif // ifdef F1_BOARD
+`endif // ifdef PITON_AXI_EXTERNAL_DRAM
 
 `ifdef PITON_CLKS_CHIPSET
     // Need to generate these clocks if specified
@@ -1071,7 +1076,7 @@ chipset chipset(
     // DRAM and I/O interfaces
 `ifndef PITONSYS_NO_MC
 `ifdef PITON_FPGA_MC_DDR3
-`ifndef F1_BOARD
+`ifndef PITON_AXI_EXTERNAL_DRAM
 `ifdef PITONSYS_DDR4
     .ddr_act_n(ddr_act_n),
     .ddr_bg(ddr_bg),
@@ -1098,7 +1103,7 @@ chipset chipset(
     .ddr_dm(ddr_dm),
 `endif
     .ddr_odt(ddr_odt),
-`else //ifndef F1_BOARD
+`else //ifndef PITON_AXI_EXTERNAL_DRAM
     .mc_clk(mc_clk),
     // AXI Write Address Channel Signals
     .m_axi_awid(m_axi_awid),
@@ -1156,7 +1161,7 @@ chipset chipset(
     .m_axi_bready(m_axi_bready),
 
     .ddr_ready(ddr_ready),
-`endif // ifndef F1_BOARD
+`endif // ifndef PITON_AXI_EXTERNAL_DRAM
 `endif // PITON_FPGA_MC_DDR3
 `endif // endif PITONSYS_NO_MC
 
@@ -1237,6 +1242,10 @@ chipset chipset(
 `endif
     .leds(leds)
 `endif
+`ifdef PITON_FPGA_LITEX_CHIPSET
+    .ext_irq(ext_irq),
+    .ext_irq_trigger(ext_irq_trigger)
+`endif
 
 `ifdef PITON_ARIANE
     ,
@@ -1257,9 +1266,7 @@ chipset chipset(
     .timer_irq_o                    ( timer_irq                  ), // Timer interrupts
     .ipi_o                          ( ipi                        ), // software interrupt (a.k.a inter-process-interrupt)
     // PLIC
-    `ifndef PITON_FPGA_LITEX_CHIPSET
     .irq_o                          ( irq                        )  // level sensitive IR lines, mip & sip (async)
-    `endif // endif PITON_FPGA_LITEX_CHIPSET
 `endif
 
 );

@@ -86,7 +86,7 @@
 
 module chipset(
 
-`ifdef F1_BOARD
+`ifdef PITON_AXI_EXTERNAL_DRAM
     input sys_clk,
 `else
     // Oscillator clock
@@ -117,7 +117,7 @@ module chipset(
         input                                       sd_sys_clk,
     `endif // endif PITONSYS_SPI
 `endif // endif PITON_CHIPSET_CLKS_GEN
-`endif // ifdef F1_BOARD
+`endif // ifdef PITON_AXI_EXTERNAL_DRAM
 
 
 `ifdef PITON_BOARD
@@ -222,7 +222,7 @@ module chipset(
 `ifdef PITON_FPGA_MC_DDR3
     // Generalized interface for any FPGA board we support.
     // Not all signals will be used for all FPGA boards (see constraints)
-`ifndef F1_BOARD
+`ifndef PITON_AXI_EXTERNAL_DRAM
 `ifdef PITONSYS_DDR4
     output                                      ddr_act_n,
     output [`DDR3_BG_WIDTH-1:0]                 ddr_bg,
@@ -253,7 +253,7 @@ module chipset(
     output [`DDR3_DM_WIDTH-1:0]                 ddr_dm,
 `endif // PITONSYS_DDR4
     output [`DDR3_ODT_WIDTH-1:0]                ddr_odt,
-`else // F1_BOARD
+`else // PITON_AXI_EXTERNAL_DRAM
     input                                        mc_clk,
     // AXI Write Address Channel Signals
     output wire [`AXI4_ID_WIDTH     -1:0]    m_axi_awid,
@@ -311,7 +311,7 @@ module chipset(
     output wire                                   m_axi_bready,
 
     input  wire                                   ddr_ready,
-`endif // ifndef F1_BOARD
+`endif // ifndef PITON_AXI_EXTERNAL_DRAM
 `endif //`ifdef PITON_FPGA_MC_DDR3
 `endif // endif PITONSYS_NO_MC
 
@@ -460,6 +460,7 @@ module chipset(
         input                                               btnc,           
     `endif
 
+    `ifndef PITON_FPGA_LITEX_CHIPSET
     // Switches
     `ifdef VCU118_BOARD
         // we only have 4 gpio dip switches on this board
@@ -468,7 +469,7 @@ module chipset(
         input  [3:0]                                        sw,
     `elsif XUPP3R_BOARD
         // no switches :(
-    `else         
+    `else
         input  [7:0]                                        sw,
     `endif
 
@@ -476,7 +477,13 @@ module chipset(
      output [3:0]                                           leds
     `else 
      output [7:0]                                           leds
-     `endif
+    `endif
+
+    `endif // PITON_FPGA_LITEX_CHIPSET
+    `ifdef PITON_FPGA_LITEX_CHIPSET
+        input [31:0]  ext_irq,
+        input [31:0] ext_irq_trigger
+    `endif // endif PITON_FPGA_LITEX_CHIPSET
 
 `endif  // PITON_BOARD
 
@@ -746,6 +753,7 @@ end
     end
 `endif  // PITON_BOARD
 
+`ifndef PITON_FPGA_LITEX_CHIPSET
 `ifdef PITONSYS_IOCTRL
     `ifdef PITONSYS_UART
         `ifdef PITONSYS_UART_BOOT
@@ -838,6 +846,11 @@ end
     `endif // endif PITONSYS_IOCTRL
 
 `endif  // PITON_BOARD
+`else // ifndef PITON_FPGA_LITEX_CHIPSET
+    assign uart_boot_en = 1'b0;
+    assign uart_timeout_en = 1'b0;
+    assign noc_power_test_hop_count = 4'b0;
+`endif // endif PITON_FPGA_LITEX_CHIPSET
 
 //////////////////////////
 // Sub-module Instances //
@@ -864,7 +877,7 @@ end
 
     assign chipset_clk = passthru_chipset_clk;
 `else
-    `ifndef F1_BOARD
+    `ifndef PITON_AXI_EXTERNAL_DRAM
         `ifdef PITON_CHIPSET_CLKS_GEN
             clk_mmcm    clk_mmcm    (
 
@@ -907,10 +920,10 @@ end
             `endif
         );
         `endif // endif PITON_CHIPSET_CLKS_GEN
-    `else // ifndef F1_BOARD
+    `else // ifndef PITON_AXI_EXTERNAL_DRAM
         assign clk_locked = 1'b1;
         assign chipset_clk = sys_clk;
-    `endif //ifndef F1_BOARD
+    `endif //ifndef PITON_AXI_EXTERNAL_DRAM
 `endif // PITON_BOARD
 
 // If we are using a passthru, we need to convert
@@ -1248,7 +1261,7 @@ chipset_impl_noc_power_test  chipset_impl (
 
     `ifndef PITONSYS_NO_MC
     `ifdef PITON_FPGA_MC_DDR3
-    `ifndef F1_BOARD
+    `ifndef PITON_AXI_EXTERNAL_DRAM
         // Memory controller clock
         `ifdef PITONSYS_DDR4
             .mc_clk_p(mc_clk_p),
@@ -1256,7 +1269,7 @@ chipset_impl_noc_power_test  chipset_impl (
         `else  // PITONSYS_DDR4                               
             .mc_clk(mc_clk),
         `endif  // PITONSYS_DDR4                               
-    `endif // ifndef F1_BOARD
+    `endif // ifndef PITON_AXI_EXTERNAL_DRAM
     `endif // endif PITON_FPGA_MC_DDR3
     `endif // endif PITONSYS_NO_MC
 
@@ -1285,7 +1298,7 @@ chipset_impl_noc_power_test  chipset_impl (
         `ifdef PITON_FPGA_MC_DDR3 
             ,
             .init_calib_complete(init_calib_complete),
-            `ifndef F1_BOARD
+            `ifndef PITON_AXI_EXTERNAL_DRAM
                 `ifdef PITONSYS_DDR4
                     .ddr_act_n(ddr_act_n),                    
                     .ddr_bg(ddr_bg), 
@@ -1315,7 +1328,7 @@ chipset_impl_noc_power_test  chipset_impl (
                     .ddr_dm(ddr_dm),
                 `endif // XUPP3R_BOARD
                 .ddr_odt(ddr_odt)
-            `else // ifndef F1_BOARD
+            `else // ifndef PITON_AXI_EXTERNAL_DRAM
                 .mc_clk(mc_clk),
                 // AXI Write Address Channel Signals
                 .m_axi_awid(m_axi_awid),
@@ -1373,7 +1386,7 @@ chipset_impl_noc_power_test  chipset_impl (
                 .m_axi_bready(m_axi_bready), 
 
                 .ddr_ready(ddr_ready)
-            `endif //ifndef F1_BOARD
+            `endif //ifndef PITON_AXI_EXTERNAL_DRAM
         `endif // endif PITON_FPGA_MC_DDR3
     `endif // endif PITONSYS_NO_MC
 
@@ -1427,6 +1440,13 @@ chipset_impl_noc_power_test  chipset_impl (
 
             `endif // PITON_FPGA_ETHERNETLITE   
     `endif // endif PITONSYS_IOCTRL
+
+    `ifdef PITON_FPGA_LITEX_CHIPSET
+        ,
+        .ext_irq(ext_irq),
+        .ext_irq_trigger(ext_irq_trigger)
+    `endif // endif PITON_FPGA_LITEX_CHIPSET
+
 
     `ifdef PITON_ARIANE
         ,

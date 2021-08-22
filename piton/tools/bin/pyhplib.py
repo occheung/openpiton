@@ -143,7 +143,7 @@ DEVICES_XML_FILENAME = os.path.join(os.getenv("PROTOSYN_RUNTIME_DESIGN_PATH", ""
 print("// " + DEVICES_XML_FILENAME)
 
 if not os.path.isfile(DEVICES_XML_FILENAME):
-    print("Error: devices.xml not found")
+    print("// Error: devices.xml not found, using genesys 2 device xml")
     DEVICES_XML_FILENAME = os.path.join(os.getenv("PITON_ROOT", ""), "piton/design/xilinx/genesys2/devices.xml")
     print("// " + DEVICES_XML_FILENAME)
 

@@ -89,14 +89,14 @@ module chipset_impl(
 
 `ifndef PITONSYS_NO_MC
 `ifdef PITON_FPGA_MC_DDR3
-`ifndef F1_BOARD
+`ifndef PITON_AXI_EXTERNAL_DRAM
 `ifdef PITONSYS_DDR4
     input                                       mc_clk_p,
     input                                       mc_clk_n,
 `else  // PITONSYS_DDR4
     input                                       mc_clk,
 `endif // PITONSYS_DDR4
-`endif // ifndef F1_BOARD
+`endif // ifndef PITON_AXI_EXTERNAL_DRAM
 `endif // endif PITON_FPGA_MC_DDR3
 `endif // endif PITONSYS_NO_MC
 
@@ -126,7 +126,7 @@ module chipset_impl(
 `ifdef PITON_FPGA_MC_DDR3
     ,
     output                                      init_calib_complete
-`ifndef F1_BOARD
+`ifndef PITON_AXI_EXTERNAL_DRAM
     // Generalized interface for any FPGA board we support.
     // Not all signals will be used for all FPGA boards (see constraints)
 `ifdef PITONSYS_DDR4
@@ -161,7 +161,7 @@ module chipset_impl(
     output [`DDR3_DM_WIDTH-1:0]                 ddr_dm,
 `endif // PITONSYS_DDR4
     output [`DDR3_ODT_WIDTH-1:0]                ddr_odt
-`else // ifndef F1_BOARD
+`else // ifndef PITON_AXI_EXTERNAL_DRAM
     // AXI Write Address Channel Signals
     ,
     input                                        mc_clk,
@@ -220,7 +220,7 @@ module chipset_impl(
     output wire                                   m_axi_bready, 
 
     input  wire                                   ddr_ready
-`endif // ifndef F1_BOARD
+`endif // ifndef PITON_AXI_EXTERNAL_DRAM
 `endif // ifdef PITON_FPGA_MC_DDR3
 `endif // endif PITONSYS_NO_MC
 
@@ -263,6 +263,14 @@ module chipset_impl(
     output                                      net_phy_mdc
 `endif // PITON_FPGA_ETHERNETLITE
 `endif // endif PITONSYS_IO_CTRL
+
+    `ifdef PITON_FPGA_LITEX_CHIPSET
+        ,
+        input [31:0]  ext_irq,
+        input [31:0] ext_irq_trigger
+    `endif // endif PITON_FPGA_LITEX_CHIPSET
+
+
 `ifdef PITON_ARIANE
     ,
     // Debug
@@ -1108,8 +1116,13 @@ fake_uart fake_uart (
     wire [1:0] irq_sources, irq_le;
     // 0:level 1:edge
     // Eth is edge, Uart is level
+    `ifndef PITON_FPGA_LITEX_CHIPSET
     assign irq_le      = {1'b1, 1'b0};
     assign irq_sources = {net_interrupt, uart_interrupt};
+    `else // endif PITON_FPGA_LITEX_CHIPSET
+    assign irq_le      = ext_irq[1:0];
+    assign irq_sources = ext_irq_trigger[1:0];
+    `endif // endif PITON_FPGA_LITEX_CHIPSET
 
     // this is for selecting the right bootrom (1: baremetal, 0: linux)
     wire ariane_boot_sel;
