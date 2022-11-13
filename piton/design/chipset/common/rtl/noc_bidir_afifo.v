@@ -79,7 +79,43 @@ wire    [63:0]  fifo_data_to_splitter;
 wire            fifo_recv_rd_en;
 reg             outreg_empty;
 
+// Like-for-like replacement
+// Just so that we don't use IP cores here
+// Otherwise, integration with LiteX would be difficult given that
+// the FPGA target is supposed to be chosen by LiteX
+async_fifo #(
+    .DSIZE(64),
+    .ASIZE(8),
+    .MEMSIZE(128)
+) async_fifo_recv(
+    .rreset(rst_1),
+    .wreset(rst_2),
+    .wclk(clk_2),
+    .rclk(clk_1),
+    .ren(fifo_recv_rd_en),
+    .wval(flit_in_val_2),
+    .wdata(flit_in_data_2),
+    .rdata(fifo_data_to_splitter),
+    .wfull(fifo_recv_full), 
+    .rempty(fifo_recv_empty)
+);
 
+async_fifo #(
+    .DSIZE(64),
+    .ASIZE(8),
+    .MEMSIZE(128)
+) async_fifo_send(
+    .rreset(rst_2),
+    .wreset(rst_1),
+    .wclk(clk_1),
+    .rclk(rst_2),
+    .ren(flit_out_rdy_2),
+    .wval(flit_in_val_1),
+    .wdata(flit_in_data_1),
+    .rdata(flit_out_data_2),
+    .wfull(fifo_send_full), 
+    .rempty(fifo_send_empty)
+);
 
 // afifo_w64_d128_std async_fifo_recv(
 //     .rst(rst_1),
