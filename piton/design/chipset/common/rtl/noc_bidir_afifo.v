@@ -81,29 +81,29 @@ reg             outreg_empty;
 
 
 
-afifo_w64_d128_std async_fifo_recv(
-    .rst(rst_1),
-    .wr_clk(clk_2),
-    .rd_clk(clk_1),
-    .rd_en(fifo_recv_rd_en),
-    .wr_en(flit_in_val_2),
-    .din(flit_in_data_2),
-    .dout(fifo_data_to_splitter),   // data: 1 cycle delay after rd_en
-    .full(fifo_recv_full),
-    .empty(fifo_recv_empty)
-);
+// afifo_w64_d128_std async_fifo_recv(
+//     .rst(rst_1),
+//     .wr_clk(clk_2),
+//     .rd_clk(clk_1),
+//     .rd_en(fifo_recv_rd_en),
+//     .wr_en(flit_in_val_2),
+//     .din(flit_in_data_2),
+//     .dout(fifo_data_to_splitter),   // data: 1 cycle delay after rd_en
+//     .full(fifo_recv_full),
+//     .empty(fifo_recv_empty)
+// );
 
-afifo_w64_d128_std async_fifo_send(
-    .rst(rst_2),
-    .wr_clk(clk_1),
-    .rd_clk(clk_2),
-    .rd_en(flit_out_rdy_2),
-    .wr_en(flit_in_val_1),
-    .din(flit_in_data_1),
-    .dout(flit_out_data_2),     // data: 1 cycle delay after rd_en
-    .full(fifo_send_full),
-    .empty(fifo_send_empty)
-);
+// afifo_w64_d128_std async_fifo_send(
+//     .rst(rst_2),
+//     .wr_clk(clk_1),
+//     .rd_clk(clk_2),
+//     .rd_en(flit_out_rdy_2),
+//     .wr_en(flit_in_val_1),
+//     .din(flit_in_data_1),
+//     .dout(flit_out_data_2),     // data: 1 cycle delay after rd_en
+//     .full(fifo_send_full),
+//     .empty(fifo_send_empty)
+// );
 
 assign flit_in_rdy_1 = ~fifo_send_full;
 assign flit_in_rdy_2 = ~fifo_recv_full;

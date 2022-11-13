@@ -439,6 +439,7 @@ def main():
     # Set defines to pass as backend args
     ##################################
     args.config_rtl.append('NO_SCAN')
+    args.config_rtl.append('PITON_FPGA_LITEX_CHIPSET')
 
     if args.fusesoc_core == "openpiton::manycore_tb":
         args.config_rtl.append('PITON_DPI')
