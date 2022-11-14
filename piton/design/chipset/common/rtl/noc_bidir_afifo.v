@@ -108,7 +108,7 @@ async_fifo #(
     .rreset(rst_2),
     .wreset(rst_1),
     .wclk(clk_1),
-    .rclk(rst_2),
+    .rclk(clk_2),
     .ren(flit_out_rdy_2),
     .wval(flit_in_val_1),
     .wdata(flit_in_data_1),
@@ -177,10 +177,10 @@ always @(posedge clk_1) begin
 end
 
 assign fifo_recv_rd_en = ~fifo_recv_empty & (outreg_empty | (~outreg_empty & flit_out_rdy_1));
-assign flit_out_val_1 = ~outreg_empty;
+assign flit_out_val_1 = ~fifo_recv_empty;
 assign flit_out_data_1 = fifo_data_to_splitter;
 
 
-assign flit_out_val_2 = ~fifo_send_empty_reg;
+assign flit_out_val_2 = ~fifo_send_empty;
 
 endmodule
