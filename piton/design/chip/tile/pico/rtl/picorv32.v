@@ -723,7 +723,7 @@ module picorv32 #(
 	`FORMAL_KEEP reg dbg_rs2val_valid;
 
 	always @* begin
-		new_ascii_instr = "";
+		new_ascii_instr = "dflt";
 
 		if (instr_lui)      new_ascii_instr = "lui";
 		if (instr_auipc)    new_ascii_instr = "auipc";
