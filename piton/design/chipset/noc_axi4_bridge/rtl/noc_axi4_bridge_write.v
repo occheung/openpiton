@@ -241,7 +241,9 @@ end
 
 assign m_axi_awaddr = {addr[`AXI4_ADDR_WIDTH-1:6], 6'b0};
 assign m_axi_wstrb = strb_before_offset << offset;
-assign m_axi_wdata = req_data_f << (8*offset);
+
+wire [8: 0] write_shift = uncacheable ? ((`AXI4_DATA_WIDTH-64)-(8*offset)): 0;
+assign m_axi_wdata = uncacheable ? (req_data_f >> write_shift) : req_data_f;
 
 // inbound responses
 wire m_axi_bgo = m_axi_bvalid & m_axi_bready;
