@@ -157,7 +157,6 @@
     `define PITONSYS_IOCTRL
     `undef PITONSYS_UART
     `undef PITONSYS_SPI
-    `undef PITON_CLKS_SIM
 `endif
 
 // If PITON_FPGA_SD_BOOT is set we should always include SPI
