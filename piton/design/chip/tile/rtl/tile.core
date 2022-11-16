@@ -12,8 +12,8 @@ filesets:
             - openpiton::piton_include
             - openpiton::piton_tile_common
             - openpiton::dynamic_node
-            - ost1? (openpiton::sparc_core)
-            - ariane? (pulp-platform.org::ariane)
+            - sparc? (openpiton::sparc_core)
+            # - ariane? (pulp-platform.org::ariane)
             - pico? (openpiton::pico)
             - openpiton::l15
             - openpiton::l2

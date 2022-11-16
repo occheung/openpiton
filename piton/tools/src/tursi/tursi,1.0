@@ -434,6 +434,8 @@ def main():
     os.environ['PITON_X_TILES']   = str(args.x_tiles)
     os.environ['PITON_Y_TILES']   = str(args.y_tiles)
     os.environ['PITON_NUM_TILES'] = str(args.num_tiles)
+    os.environ['PITON_ARIANE'] = str("1")
+    args.config_rtl.append('WT_DCACHE')
 
     ##################################
     # Set defines to pass as backend args
@@ -536,7 +538,7 @@ def main():
 
     if do_pickle:
         #print_info("Pickling: %s" % args.core_name)
-        cmd = 'fusesoc --config {} run --build --target=pickle --tool=slang {} --slang_options="--preprocess -D VERILATOR -I {} -I {} {}" > generated.sv'.format(fusesoc_config_arg, args.fusesoc_core, ariane_dir, cross_module_dir, " ".join(["-D %s " % define for define in args.config_rtl]))
+        cmd = 'fusesoc --config {} run --flag=ariane --build --target=pickle --tool=slang {} --slang_options="--preprocess -D VERILATOR -I {} -I {} {}" > generated.sv'.format(fusesoc_config_arg, args.fusesoc_core, ariane_dir, cross_module_dir, " ".join(["-D %s " % define for define in args.config_rtl]))
         print_info(cmd)
         ret_val = os.system(cmd)
         if ret_val != 0:
