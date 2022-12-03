@@ -242,8 +242,22 @@ end
 assign m_axi_awaddr = {addr[`AXI4_ADDR_WIDTH-1:6], 6'b0};
 assign m_axi_wstrb = strb_before_offset << offset;
 
-wire [8: 0] write_shift = uncacheable ? ((`AXI4_DATA_WIDTH-64)-(8*offset)): 0;
-assign m_axi_wdata = uncacheable ? (req_data_f >> write_shift) : req_data_f;
+wire [8: 0] write_shift = uncacheable ? ((`AXI4_DATA_WIDTH-64)-(64*offset[5:3])-(32*(!offset[2]))): 0;
+wire [`AXI4_DATA_WIDTH-1:0] m_axi_wdata_raw = uncacheable ? (req_data_f >> write_shift) : req_data_f;
+
+genvar axi_w_word;
+for (axi_w_word = 0; axi_w_word < 8; ++axi_w_word) begin
+    assign m_axi_wdata[((axi_w_word+1)*64)-1: (axi_w_word)*64] = {
+        m_axi_wdata_raw[axi_w_word*64+ 7:axi_w_word*64   ],
+        m_axi_wdata_raw[axi_w_word*64+15:axi_w_word*64+ 8],
+        m_axi_wdata_raw[axi_w_word*64+23:axi_w_word*64+16],
+        m_axi_wdata_raw[axi_w_word*64+31:axi_w_word*64+24],
+        m_axi_wdata_raw[axi_w_word*64+39:axi_w_word*64+32],
+        m_axi_wdata_raw[axi_w_word*64+47:axi_w_word*64+40],
+        m_axi_wdata_raw[axi_w_word*64+55:axi_w_word*64+48],
+        m_axi_wdata_raw[axi_w_word*64+63:axi_w_word*64+56]
+    };
+end
 
 // inbound responses
 wire m_axi_bgo = m_axi_bvalid & m_axi_bready;

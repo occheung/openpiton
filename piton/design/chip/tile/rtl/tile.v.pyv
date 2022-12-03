@@ -1033,7 +1033,7 @@ print("    assign ariane_bootaddr  =  64'h%s;" % bootAddr)
 <%
 str = '''
         .DmBaseAddress          ( 64'h%s ),
-        .SwapEndianess          ( 1'b0 ),
+        .SwapEndianess          ( 1'b1 ),
         .NrExecuteRegionRules   ( %d   ),
         .ExecuteRegionAddrBase  ( %s   ),
         .ExecuteRegionLength    ( %s   ),

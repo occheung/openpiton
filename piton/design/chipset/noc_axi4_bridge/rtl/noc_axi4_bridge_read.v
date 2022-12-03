@@ -266,6 +266,20 @@ end
 // process data here
 assign resp_id = resp_id_f;
 
+reg [`AXI4_DATA_WIDTH-1:0] data_endianness_fixed;
+genvar axi_r_word;
+for (axi_r_word = 0; axi_r_word < 8; ++axi_r_word) begin
+    assign data_endianness_fixed[((axi_r_word+1)*64)-1: (axi_r_word)*64] = {
+        m_axi_rdata[axi_r_word*64+ 7:axi_r_word*64   ],
+        m_axi_rdata[axi_r_word*64+15:axi_r_word*64+ 8],
+        m_axi_rdata[axi_r_word*64+23:axi_r_word*64+16],
+        m_axi_rdata[axi_r_word*64+31:axi_r_word*64+24],
+        m_axi_rdata[axi_r_word*64+39:axi_r_word*64+32],
+        m_axi_rdata[axi_r_word*64+47:axi_r_word*64+40],
+        m_axi_rdata[axi_r_word*64+55:axi_r_word*64+48],
+        m_axi_rdata[axi_r_word*64+63:axi_r_word*64+56]
+    };
+end
 
 reg [`AXI4_DATA_WIDTH-1:0] data_offseted;
 
@@ -274,7 +288,7 @@ always @(posedge clk) begin
         data_offseted <= 0;
     end 
     else begin
-        data_offseted <= m_axi_rgo ? (m_axi_rdata >> (8*offset[m_axi_rid])) : 0;
+        data_offseted <= m_axi_rgo ? (data_endianness_fixed >> (8*offset[m_axi_rid])) : 0;
     end
 end
 
