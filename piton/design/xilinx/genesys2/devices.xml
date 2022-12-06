@@ -33,13 +33,11 @@
     <port>
         <name>mem</name>
         <base>0x0</base>
-        <!-- 1 GB -->
         <length>0x100000000</length>
     </port>
     <port>
         <name>iob</name>
         <base>0x9f00000000</base>
         <length>0x10</length>
-        <noc2in/>
     </port>
 </devices>
