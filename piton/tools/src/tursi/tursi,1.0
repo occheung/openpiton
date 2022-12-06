@@ -442,6 +442,9 @@ def main():
     ##################################
     args.config_rtl.append('NO_SCAN')
     args.config_rtl.append('PITON_FPGA_LITEX_CHIPSET')
+    # The poirnt is to optimize NOC data handling for non-cacheable reads
+    # NOC message only needs to be 1 word long
+    args.config_rtl.append('L2_SEND_NC_REQ')
 
     if args.fusesoc_core == "openpiton::manycore_tb":
         args.config_rtl.append('PITON_DPI')

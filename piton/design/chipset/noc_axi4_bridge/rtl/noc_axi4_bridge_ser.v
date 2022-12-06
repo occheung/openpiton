@@ -144,7 +144,12 @@ always @(posedge clk) begin
             end
             `MSG_TYPE_NC_LOAD_REQ: begin
               resp_header[`MSG_TYPE    ]     <= `MSG_TYPE_NC_LOAD_MEM_ACK;
-              resp_header[`MSG_LENGTH  ]     <= `PAYLOAD_LEN; 
+              // Credits to Grigory: Optimization trick
+              if (header_in[`MSG_DATA_SIZE] < `MSG_DATA_SIZE_8B) begin
+                resp_header[`MSG_LENGTH  ]   <= 1;
+              end else begin
+                resp_header[`MSG_LENGTH  ]   <= `PAYLOAD_LEN;
+              end
             end
             `MSG_TYPE_NC_STORE_REQ: begin
               resp_header[`MSG_TYPE    ]     <= `MSG_TYPE_NC_STORE_MEM_ACK;
