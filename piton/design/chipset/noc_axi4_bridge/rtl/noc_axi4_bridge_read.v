@@ -159,6 +159,11 @@ wire resp_go;
 wire uncacheable = (virt_addr[`PHY_ADDR_WIDTH-1]) 
                 || (req_header_f[`MSG_TYPE] == `MSG_TYPE_NC_LOAD_REQ);
 
+// Considering how LiteX AXI bus converters work, size will be ignored
+// It will have no impact whatsoever
+// It is just nicer to be more correct
+assign m_axi_arsize = uncacheable ? req_header_f[`MSG_DATA_SIZE] - 1: `AXI4_SIZE_WIDTH'b110;
+
 generate begin
     genvar i;
     for (i = 0; i < `NOC_AXI4_BRIDGE_IN_FLIGHT_LIMIT; i = i + 1) begin
