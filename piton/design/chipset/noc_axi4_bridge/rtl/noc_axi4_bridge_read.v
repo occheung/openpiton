@@ -222,7 +222,7 @@ end
 endgenerate
 
 wire [`AXI4_ADDR_WIDTH-1:0] addr = uart_boot_en ? {phys_addr[`AXI4_ADDR_WIDTH-4:0], 3'b0} : virt_addr;
-assign m_axi_araddr = {addr[`AXI4_ADDR_WIDTH-1:6], 6'b0};
+assign m_axi_araddr = uncacheable ? addr : {addr[`AXI4_ADDR_WIDTH-1:6], 6'b0};
 
 
 
@@ -288,7 +288,9 @@ always @(posedge clk) begin
         data_offseted <= 0;
     end 
     else begin
-        data_offseted <= m_axi_rgo ? (data_endianness_fixed >> (8*offset[m_axi_rid])) : 0;
+        // Modified LiteX interconnect structure
+        // to force repetition of words to fill the full pipe
+        data_offseted <= m_axi_rgo ? (data_endianness_fixed) : 0;
     end
 end
 
