@@ -190,11 +190,13 @@ storage_addr_trans #(
 
 reg [`AXI4_STRB_WIDTH-1:0] strb_before_offset;
 reg [5:0] offset;
+reg [6:0] write_byte_size;
 reg [`AXI4_ADDR_WIDTH-1:0] addr;
 always @(posedge clk) begin
     if (~rst_n) begin
         offset <= 6'b0;
         strb_before_offset <= `AXI4_STRB_WIDTH'b0;
+        write_byte_size <= 64;
         addr <= `AXI4_ADDR_WIDTH'b0;
     end
     else begin
@@ -202,36 +204,46 @@ always @(posedge clk) begin
             case (req_header_f[`MSG_DATA_SIZE])
                 `MSG_DATA_SIZE_0B: begin
                     strb_before_offset <= `AXI4_STRB_WIDTH'b0;
+                    write_byte_size <= 0;
                 end
                 `MSG_DATA_SIZE_1B: begin
                     strb_before_offset <= `AXI4_STRB_WIDTH'b1;
+                    write_byte_size <= 1;
                 end
                 `MSG_DATA_SIZE_2B: begin
                     strb_before_offset <= `AXI4_STRB_WIDTH'b11;
+                    write_byte_size <= 2;
                 end
                 `MSG_DATA_SIZE_4B: begin
                     strb_before_offset <= `AXI4_STRB_WIDTH'hf;
+                    write_byte_size <= 4;
                 end
                 `MSG_DATA_SIZE_8B: begin
                     strb_before_offset <= `AXI4_STRB_WIDTH'hff;
+                    write_byte_size <= 8;
                 end
                 `MSG_DATA_SIZE_16B: begin
                     strb_before_offset <= `AXI4_STRB_WIDTH'hffff;
+                    write_byte_size <= 16;
                 end
                 `MSG_DATA_SIZE_32B: begin
                     strb_before_offset <= `AXI4_STRB_WIDTH'hffffffff;
+                    write_byte_size <= 32;
                 end
                 `MSG_DATA_SIZE_64B: begin
                     strb_before_offset <= `AXI4_STRB_WIDTH'hffffffffffffffff;
+                    write_byte_size <= 64;
                 end
                 default: begin
                     // should never end up here
                     strb_before_offset <= `AXI4_STRB_WIDTH'b0;
+                    write_byte_size <= 0;
                 end
             endcase
         end
         else begin
             strb_before_offset <= `AXI4_STRB_WIDTH'hffffffffffffffff;
+            write_byte_size <= 64;
         end
 
         offset <= uncacheable ? virt_addr[5:0] : 6'b0;
@@ -239,25 +251,28 @@ always @(posedge clk) begin
     end
 end
 
-assign m_axi_awaddr = {addr[`AXI4_ADDR_WIDTH-1:6], 6'b0};
-assign m_axi_wstrb = strb_before_offset << offset;
+// Non-cacheable protocol: Expose true address to AXI interface
+assign m_axi_awaddr = uncacheable ? addr : {addr[`AXI4_ADDR_WIDTH-1:6], 6'b0};
+assign m_axi_wstrb = uncacheable ? strb_before_offset : strb_before_offset << offset;
 
-wire [8: 0] write_shift = uncacheable ? ((`AXI4_DATA_WIDTH-64)-(64*offset[5:3])-(32*(!offset[2]))): 0;
-wire [`AXI4_DATA_WIDTH-1:0] m_axi_wdata_raw = uncacheable ? (req_data_f >> write_shift) : req_data_f;
+wire [`AXI4_DATA_WIDTH-1:0] m_axi_wdata_raw;
 
 genvar axi_w_word;
 for (axi_w_word = 0; axi_w_word < 8; ++axi_w_word) begin
-    assign m_axi_wdata[((axi_w_word+1)*64)-1: (axi_w_word)*64] = {
-        m_axi_wdata_raw[axi_w_word*64+ 7:axi_w_word*64   ],
-        m_axi_wdata_raw[axi_w_word*64+15:axi_w_word*64+ 8],
-        m_axi_wdata_raw[axi_w_word*64+23:axi_w_word*64+16],
-        m_axi_wdata_raw[axi_w_word*64+31:axi_w_word*64+24],
-        m_axi_wdata_raw[axi_w_word*64+39:axi_w_word*64+32],
-        m_axi_wdata_raw[axi_w_word*64+47:axi_w_word*64+40],
-        m_axi_wdata_raw[axi_w_word*64+55:axi_w_word*64+48],
-        m_axi_wdata_raw[axi_w_word*64+63:axi_w_word*64+56]
+    assign m_axi_wdata_raw[((axi_w_word+1)*64)-1: (axi_w_word)*64] = {
+        req_data_f[axi_w_word*64+ 7:axi_w_word*64   ],
+        req_data_f[axi_w_word*64+15:axi_w_word*64+ 8],
+        req_data_f[axi_w_word*64+23:axi_w_word*64+16],
+        req_data_f[axi_w_word*64+31:axi_w_word*64+24],
+        req_data_f[axi_w_word*64+39:axi_w_word*64+32],
+        req_data_f[axi_w_word*64+47:axi_w_word*64+40],
+        req_data_f[axi_w_word*64+55:axi_w_word*64+48],
+        req_data_f[axi_w_word*64+63:axi_w_word*64+56]
     };
 end
+
+// Non-cacheable protocol: LiteX expects payload at the lowest word
+assign m_axi_wdata = uncacheable ? (m_axi_wdata_raw >> ((64 - write_byte_size) * 8)) : m_axi_wdata_raw;
 
 // inbound responses
 wire m_axi_bgo = m_axi_bvalid & m_axi_bready;
